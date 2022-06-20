@@ -1,3 +1,4 @@
+[![CurseForge](http://cf.way2muchnoise.eu/full_243076_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/wantedomnitool-1-12-2)
 # About this mod
 
 This is a minecraft mod that adds a OP omnitool.
