@@ -2,10 +2,12 @@ item.omnitool.name=Omni Tool
 key.modeswitch.desc=Mode Switch Key
 key.wantedomnitool.category=Wanted Omni Tool
 
-normal=Normal
-bigholes=Big Holes
-vein=Vein
-veinextended=Vein Extended
-mode=Mode:
-energy=Energy:
+info.mode.normal=Normal
+info.mode.bigholes=Big Holes
+info.mode.vein=Vein
+info.mode.veinextended=Vein Extended
+info.mode=Mode:
+info.energy=Energy:
+info.mode.fortune=Fortune III
+info.mode.silk=Silk Touch
 

@@ -181,10 +181,10 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
                 NBTTagList enchTagList = stack.getEnchantmentTagList();
                 if (EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) == 0) {
                     enchantmentMap.put(Enchantments.SILK_TOUCH, 1);
-                    player.sendMessage(new TextComponentString("Silk Enabled"));
+                    player.sendMessage(new TextComponentString(EnumString.silk));
                 } else {
                     enchantmentMap.put(Enchantments.FORTUNE, 3);
-                    player.sendMessage(new TextComponentString("Fortune Enabled"));
+                    player.sendMessage(new TextComponentString(EnumString.fortune));
                 }
                 for (int i = 0; i < enchTagList.tagCount(); i++) {
                     int id = enchTagList.getCompoundTagAt(i).getInteger("id");
