@@ -20,7 +20,7 @@ public class MiscUtil {
         if (nBTTagCompound == null) {
             nBTTagCompound = new NBTTagCompound();
             paramItemStack.setTagCompound(nBTTagCompound);
-            nBTTagCompound.setByte("toolMode", (byte) 0);
+            nBTTagCompound.setInteger("toolMode", 0);
         }
         return nBTTagCompound;
     }

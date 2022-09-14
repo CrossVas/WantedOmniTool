@@ -9,7 +9,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Enchantments;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.server.SPacketBlockChange;
@@ -18,8 +17,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.IShearable;
-import net.minecraftforge.common.util.EnumHelper;
-
 import java.util.List;
 import java.util.Random;
 

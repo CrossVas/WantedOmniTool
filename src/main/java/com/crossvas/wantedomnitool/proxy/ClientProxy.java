@@ -10,11 +10,14 @@ import org.lwjgl.input.Keyboard;
 
 public class ClientProxy extends CommonProxy {
 
-    public static KeyBinding keyBinding;
+    public static KeyBinding modeKeyBinding;
+    public static KeyBinding altKeyBinding;
 
     public static void init() {
-        keyBinding = new KeyBinding("key.modeswitch.desc", Keyboard.KEY_F, "key." + WantedOmniTool.MODID + ".category");
-        ClientRegistry.registerKeyBinding(keyBinding);
+    	modeKeyBinding = new KeyBinding("key.modeswitch.desc", Keyboard.KEY_F, "key." + WantedOmniTool.MODID + ".category");
+    	altKeyBinding = new KeyBinding("key.alt.desc", Keyboard.KEY_LMENU, "key." + WantedOmniTool.MODID + ".category");
+        ClientRegistry.registerKeyBinding(modeKeyBinding);
+        ClientRegistry.registerKeyBinding(altKeyBinding);
     }
 
     @Override

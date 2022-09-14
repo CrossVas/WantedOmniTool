@@ -1,13 +1,17 @@
 item.omnitool.name=Omni Tool
 key.modeswitch.desc=Mode Switch Key
+key.alt.desc=Alt Key
 key.wantedomnitool.category=Wanted Omni Tool
 
-info.mode.normal=Normal
-info.mode.bigholes=Big Holes
-info.mode.vein=Vein
-info.mode.veinextended=Vein Extended
-info.mode=Mode:
-info.energy=Energy:
-info.mode.fortune=Fortune III
-info.mode.silk=Silk Touch
+tool.energy=Energy:
 
+tool.efficiency=Efficiency:
+tool.efficiency.normal=Normal
+tool.efficiency.low=Low Power
+tool.efficiency.fine=Fine
+
+tool.mode=Mode:
+tool.mode.normal=Normal
+tool.mode.bigHoles=Big Holes
+tool.mode.vein=Vein
+tool.mode.veinExtended=Vein Extended

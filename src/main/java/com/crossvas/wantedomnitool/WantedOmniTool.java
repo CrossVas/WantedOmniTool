@@ -15,8 +15,8 @@ import org.apache.logging.log4j.Logger;
 public class WantedOmniTool {
     public static final String MODID = "wantedomnitool";
     public static final String NAME = "Wanted Omni Tool";
-    public static final String VERSION = "1.12.2-2.0.6";
-    public static final String DEPS = "required-after:redstoneflux; after:enderio; after:thermalexpansion; after:thermalfoundation";
+    public static final String VERSION = "@VERSION@";
+    public static final String DEPS = "after:redstoneflux; after:enderio; after:thermalexpansion; after:thermalfoundation";
 
     @SidedProxy(clientSide = "com.crossvas.wantedomnitool.proxy.ClientProxy", serverSide = "com.crossvas.wantedomnitool.proxy.CommonProxy")
     public static CommonProxy proxy;
