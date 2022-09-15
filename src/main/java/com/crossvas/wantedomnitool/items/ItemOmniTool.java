@@ -66,7 +66,7 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 		public final float efficiency;
 		public final int energyCost;
 
-		private ToolProps(float efficiency, int energyCost, TextFormatting color) {
+		ToolProps(float efficiency, int energyCost, TextFormatting color) {
 			this.name = EnumString.toolEfficiency + "."
 					+ CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name());
 			this.color = color;
@@ -87,7 +87,7 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 		public final String name;
 		public final TextFormatting color;
 
-		private ToolModes(TextFormatting color) {
+		ToolModes(TextFormatting color) {
 			this.name = EnumString.toolmode + "."
 					+ CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name());
 			this.color = color;
@@ -215,7 +215,8 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand,
 			EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (!ClientProxy.modeKeyBinding.isKeyDown()) {
+		if (!ClientProxy.modeKeyBinding.isKeyDown() &&
+			!ClientProxy.altKeyBinding.isKeyDown()) {
 			ItemStack torch = new ItemStack(Blocks.TORCH);
 			IBlockState state = worldIn.getBlockState(pos);
 			Block block = state.getBlock();

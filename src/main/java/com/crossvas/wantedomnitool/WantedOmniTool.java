@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = WantedOmniTool.MODID, name = WantedOmniTool.NAME, version = WantedOmniTool.VERSION, dependencies = WantedOmniTool.DEPS)
@@ -31,10 +32,13 @@ public class WantedOmniTool {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         ClientProxy.init();
+        logger.log(Level.INFO, "Keybindings Initialization done!");
     }
 
     @EventHandler
     public static void postInit(FMLPostInitializationEvent e) {
         Recipes.init();
+        logger.log(Level.INFO, "Recipe Initialization done!");
+
     }
 }
