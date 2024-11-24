@@ -5,7 +5,9 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public abstract class Packet {
 
-    public void read(ByteBuf buffer) {};
-    public void write(ByteBuf buffer) {};
-    public void handle(EntityPlayer player) {};
+    public void read(ByteBuf buffer) {}
+
+    public void write(ByteBuf buffer) {}
+
+    public void handle(EntityPlayer player) {}
 }

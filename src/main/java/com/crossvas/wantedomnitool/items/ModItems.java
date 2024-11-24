@@ -8,6 +8,5 @@ import java.util.List;
 public class ModItems {
 
     public static final List<Item> toRegister = new ArrayList<>();
-
     public static final Item omnitool = new ItemOmniTool();
 }

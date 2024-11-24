@@ -59,12 +59,10 @@ public interface IToolMode {
 
         int xRange = radius, yRange = radius, zRange = radius;
         switch (traceResult.sideHit) {
-            case DOWN:
-            case UP:
+            case DOWN: case UP:
                 yRange = 0;
                 break;
-            case NORTH:
-            case SOUTH:
+            case NORTH: case SOUTH:
                 zRange = 0;
                 break;
             default:

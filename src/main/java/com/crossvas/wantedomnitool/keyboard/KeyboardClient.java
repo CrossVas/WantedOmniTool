@@ -19,7 +19,7 @@ public class KeyboardClient extends Keyboard {
     public KeyboardClient() {}
 
     public void init() {
-        modeKeyBinding = new KeyBinding("key.modeswitch.desc",org.lwjgl.input.Keyboard.KEY_F, "key." +WantedOmniTool.MODID + ".category");
+        modeKeyBinding = new KeyBinding("key.modeswitch.desc", org.lwjgl.input.Keyboard.KEY_F, "key." + WantedOmniTool.MODID + ".category");
         altKeyBinding = new KeyBinding("key.alt.desc", org.lwjgl.input.Keyboard.KEY_LMENU, "key." + WantedOmniTool.MODID + ".category");
         ClientRegistry.registerKeyBinding(modeKeyBinding);
         ClientRegistry.registerKeyBinding(altKeyBinding);

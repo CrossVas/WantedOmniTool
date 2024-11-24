@@ -22,7 +22,7 @@ import static net.minecraft.item.ItemBlock.setTileEntityNBT;
 public interface ITorchPlacer {
 
     default EnumActionResult placeTorch(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand,
-                                      EnumFacing facing, float hitX, float hitY, float hitZ) {
+                                        EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (!WantedOmniTool.keyboard.isToolModeKeyDown(player) &&
                 !WantedOmniTool.keyboard.isAltKeyDown(player)) {
             ItemStack torch = new ItemStack(Blocks.TORCH);
