@@ -1,21 +1,16 @@
 package com.crossvas.wantedomnitool.items;
 
-import static net.minecraft.item.ItemBlock.setTileEntityNBT;
-
 import cofh.redstoneflux.api.IEnergyContainerItem;
 import cofh.redstoneflux.util.EnergyContainerItemWrapper;
 import com.crossvas.wantedomnitool.WantedOmniTool;
-import com.crossvas.wantedomnitool.proxy.ClientProxy;
-import com.crossvas.wantedomnitool.utils.EnumString;
-import com.crossvas.wantedomnitool.utils.MiscUtil;
+import com.crossvas.wantedomnitool.items.features.IToolMode;
+import com.crossvas.wantedomnitool.items.features.IToolProps;
+import com.crossvas.wantedomnitool.items.features.ITorchPlacer;
+import com.crossvas.wantedomnitool.utils.TextFormatter;
 import com.crossvas.wantedomnitool.utils.ToolHelper;
-import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -25,7 +20,6 @@ import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.item.EnumRarity;
@@ -38,9 +32,6 @@ import net.minecraft.stats.StatList;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -51,85 +42,16 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerItem {
+public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerItem, IToolProps, IToolMode, ITorchPlacer {
 
 	public static int maxEnergy = 400000;
 	public static int rechargeRate = 10000;
 
-	public enum ToolProps {
-		NORMAL(35.0F, 160, TextFormatting.BLUE), LOW(16.0F, 80, TextFormatting.GREEN),
-		FINE(10.0F, 50, TextFormatting.AQUA);
-
-		private static final ToolProps[] VALUES = values();
-		public final String name;
-		public final TextFormatting color;
-		public final float efficiency;
-		public final int energyCost;
-
-		ToolProps(float efficiency, int energyCost, TextFormatting color) {
-			this.name = EnumString.toolEfficiency + "."
-					+ CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name());
-			this.color = color;
-			this.efficiency = efficiency;
-			this.energyCost = energyCost;
-		}
-
-		public static ToolProps getFromId(int id) {
-			return VALUES[id % VALUES.length];
-		}
-	}
-	
-	public enum ToolModes {
-		NORMAL(TextFormatting.DARK_GREEN), BIG_HOLES(TextFormatting.LIGHT_PURPLE),
-		VEIN(TextFormatting.AQUA), VEIN_EXTENDED(TextFormatting.RED);
-
-		private static final ToolModes[] VALUES = values();
-		public final String name;
-		public final TextFormatting color;
-
-		ToolModes(TextFormatting color) {
-			this.name = EnumString.toolmode + "."
-					+ CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name());
-			this.color = color;
-		}
-
-		public static ToolModes getFromId(int id) {
-			return VALUES[id % VALUES.length];
-		}
-	}
-
 	protected ItemOmniTool() {
 		setRegistryName(WantedOmniTool.MODID, "omnitool");
-		setUnlocalizedName("omnitool");
 		ModItems.toRegister.add(this);
 		setCreativeTab(CreativeTabs.TOOLS);
-	}
-	
-	public static ToolModes readToolMode(ItemStack stack) {
-		return ToolModes.getFromId(MiscUtil.getOrCreateNbtData(stack).getInteger("toolMode"));
-	}
-
-	public static ToolModes readNextToolMode(ItemStack stack) {
-		return ToolModes.getFromId(MiscUtil.getOrCreateNbtData(stack).getInteger("toolMode") + 1);
-	}
-
-	public static void saveToolMode(ItemStack stack, ToolModes mode) {
-		MiscUtil.getOrCreateNbtData(stack).setInteger("toolMode", mode.ordinal());
-	}
-
-	public static ToolProps readToolProps(ItemStack stack) {
-		NBTTagCompound tag = MiscUtil.getOrCreateNbtData(stack);
-		return ToolProps.getFromId(tag.getInteger("toolProps"));
-	}
-
-	public static ToolProps readNextToolProps(ItemStack stack) {
-		NBTTagCompound tag = MiscUtil.getOrCreateNbtData(stack);
-		return ToolProps.getFromId(tag.getInteger("toolProps") + 1);
-	}
-
-	public static void saveToolProps(ItemStack stack, ToolProps props) {
-		NBTTagCompound tag = MiscUtil.getOrCreateNbtData(stack);
-		tag.setInteger("toolProps", props.ordinal());
+		setTranslationKey("omnitool");
 	}
 
 	@Override
@@ -138,15 +60,8 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 	}
 
 	@Override
-	public boolean canHarvestBlock(IBlockState blockIn) {
-		return Items.DIAMOND_AXE.canHarvestBlock(blockIn) || Items.DIAMOND_PICKAXE.canHarvestBlock(blockIn)
-				|| Items.DIAMOND_SHOVEL.canHarvestBlock(blockIn) || Items.SHEARS.canHarvestBlock(blockIn)
-				|| Items.DIAMOND_SWORD.canHarvestBlock(blockIn);
-	}
-
-	@Override
 	public float getDestroySpeed(ItemStack stack, IBlockState state) {
-		ToolProps props = readToolProps(stack);
+		IToolProps.ToolProps props = getProps(stack);
 		if (getEnergyStored(stack) >= props.energyCost) {
 			return props.efficiency;
 		}
@@ -154,13 +69,15 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 	}
 
 	@Override
+	public String getItemStackDisplayName(ItemStack stack) {
+		return TextFormatter.RED.literal(super.getItemStackDisplayName(stack)).getFormattedText();
+	}
+
+	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		tooltip.add(MiscUtil.formatComplexMessage(TextFormatting.AQUA, EnumString.energy, TextFormatting.GREEN,
-				getEnergyStored(stack) + " RF" + " / " + getMaxEnergyStored(stack) + " RF"));
-		ToolModes mode = readToolMode(stack);
-		ToolProps props = readToolProps(stack);
-		tooltip.add(MiscUtil.formatComplexMessage(TextFormatting.BLUE, EnumString.toolmode, mode.color, mode.name));
-		tooltip.add(MiscUtil.formatComplexMessage(TextFormatting.GOLD, EnumString.toolEfficiency, props.color, props.name));
+		tooltip.add(TextFormatter.AQUA.translatable("tool.energy", getEnergyStored(stack), getMaxEnergyStored(stack)).getFormattedText());
+		tooltip.add(getAOEComp(stack).getFormattedText());
+		tooltip.add(getPropComp(stack).getFormattedText());
 	}
 
 	/**
@@ -170,18 +87,16 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		ItemStack stack = player.getHeldItemMainhand();
 		if (!world.isRemote) {
-			if (ClientProxy.modeKeyBinding.isKeyDown()) {
-				ToolModes mode = readNextToolMode(stack);
-				saveToolMode(stack, mode);
-				player.sendMessage(new TextComponentString(MiscUtil.formatComplexMessage(TextFormatting.BLUE,
-						EnumString.toolmode, mode.color, mode.name)));
+			if (WantedOmniTool.keyboard.isToolModeKeyDown(player)) {
+				ToolMode mode = getNextMode(stack);
+				saveMode(stack, mode);
+				player.sendMessage(getAOEComp(stack));
 			}
 
-			if (ClientProxy.altKeyBinding.isKeyDown()) {
-				ToolProps props = readNextToolProps(stack);
-				saveToolProps(stack, props);
-				player.sendMessage(new TextComponentString(MiscUtil.formatComplexMessage(TextFormatting.GOLD,
-						EnumString.toolEfficiency, props.color, props.name)));
+			if (WantedOmniTool.keyboard.isAltKeyDown(player)) {
+				ToolProps props = getNextProps(stack);
+				saveProps(stack, props);
+				player.sendMessage(getPropComp(stack));
 			}
 
 			if (player.isSneaking()) {
@@ -189,10 +104,10 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 				NBTTagList enchTagList = stack.getEnchantmentTagList();
 				if (EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) == 0) {
 					enchantmentMap.put(Enchantments.SILK_TOUCH, 1);
-					player.sendMessage(new TextComponentString("Silk Enabled"));
+					player.sendMessage(TextFormatter.LIGHT_PURPLE.translatable("message.text.mode.mining", TextFormatter.GREEN.translatable("message.text.mode.silk")));
 				} else {
 					enchantmentMap.put(Enchantments.FORTUNE, 3);
-					player.sendMessage(new TextComponentString("Fortune Enabled"));
+					player.sendMessage(TextFormatter.LIGHT_PURPLE.translatable("message.text.mode.mining", TextFormatter.AQUA.translatable("message.text.mode.fortune")));
 				}
 				for (int i = 0; i < enchTagList.tagCount(); i++) {
 					int id = enchTagList.getCompoundTagAt(i).getInteger("id");
@@ -204,80 +119,37 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 				}
 				EnchantmentHelper.setEnchantments(enchantmentMap, stack);
 			}
-
+			return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
 		}
-		return super.onItemRightClick(world, player, hand);
+		return ActionResult.newResult(EnumActionResult.FAIL, stack);
 	}
 
 	/**
 	 * Torch Placer - for all items
 	 */
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand,
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand,
 			EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (!ClientProxy.modeKeyBinding.isKeyDown() &&
-			!ClientProxy.altKeyBinding.isKeyDown()) {
-			ItemStack torch = new ItemStack(Blocks.TORCH);
-			IBlockState state = worldIn.getBlockState(pos);
-			Block block = state.getBlock();
-			ItemStack stack = ItemStack.EMPTY;
-			if (!block.isReplaceable(worldIn, pos)) {
-				pos = pos.offset(facing);
-			}
-			for (ItemStack stack1 : player.inventory.mainInventory) {
-				if (stack1.getItem() == torch.getItem()) {
-					stack = stack1;
-					break;
-				}
-			}
-			if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack)
-					&& worldIn.mayPlace(Blocks.TORCH, pos, false, facing, player) && !player.isSneaking()) {
-				IBlockState state1 = Blocks.TORCH.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, 0,
-						player, hand);
-				if (placeBlockAt(stack, player, worldIn, pos, state1)) {
-					state1 = worldIn.getBlockState(pos);
-					SoundType soundtype = state1.getBlock().getSoundType(state1, worldIn, pos, player);
-					worldIn.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS,
-							(soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-					if (!player.isCreative()) {
-						stack.shrink(1);
-					}
-				}
-				return EnumActionResult.SUCCESS;
-			}
-		}
-		return super.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
-	}
-
-	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, IBlockState newState) {
-		if (!world.setBlockState(pos, newState, 11))
-			return false;
-		IBlockState state = world.getBlockState(pos);
-		if (state.getBlock() == Blocks.TORCH) {
-			setTileEntityNBT(world, player, pos, stack);
-			Blocks.TORCH.onBlockPlacedBy(world, pos, state, player, stack);
-			if (player instanceof EntityPlayerMP) {
-				CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, pos, stack);
-			}
-		}
-		return true;
+		return placeTorch(player, world, pos, hand, facing, hitX, hitY, hitZ);
 	}
 
 	@Override
 	public boolean onBlockStartBreak(ItemStack stack, BlockPos originPos, EntityPlayer player) {
-		if (!player.isSneaking()) {
+		if (!player.world.isRemote) {
 			World world = player.world;
-			ToolModes mode = readToolMode(stack);
-			ToolProps props = readNextToolProps(stack);
-			if (mode == ToolModes.BIG_HOLES) {
-				for (BlockPos pos : getAoEBlocks(stack, player.world, player, originPos, true))
-					if (getEnergyStored(stack) >= props.energyCost)
+			ToolMode mode = getMode(stack);
+			ToolProps props = getProps(stack);
+			if (mode == ToolMode.BIG_HOLES) {
+				ImmutableList<BlockPos> ares = getBreakableBlocksRadius(originPos, player);
+				for (BlockPos pos : ares)
+					if (getEnergyStored(stack) >= props.energyCost) {
 						ToolHelper.breakBlock(stack, player.world, player.world.getBlockState(pos), pos, player);
+					}
 			}
-			if (mode == ToolModes.VEIN || mode == ToolModes.VEIN_EXTENDED) {
+			if (mode == ToolMode.VEIN || mode == ToolMode.VEIN_EXTENDED) {
 				IBlockState state = world.getBlockState(originPos);
 				Block block = state.getBlock();
-				RayTraceResult rayTrace = doRayTrace(state, originPos, player);
+				RayTraceResult rayTrace = rayTrace(world, player, false);
 				ItemStack blockStack = block.getPickBlock(state, rayTrace, world, originPos, player);
 				List<String> oreNames = new ArrayList<>();
 				if (!blockStack.isEmpty()) {
@@ -294,10 +166,10 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 						break;
 					}
 				}
-				boolean veinGeneral = (mode == ToolModes.VEIN && isOre) || (mode == ToolModes.VEIN_EXTENDED);
+				boolean veinGeneral = (mode == ToolMode.VEIN && isOre) || (mode == ToolMode.VEIN_EXTENDED);
 				if (!player.capabilities.isCreativeMode && veinGeneral && !player.isSneaking()
 						&& getEnergyStored(stack) >= props.energyCost) {
-					for (BlockPos coord : findPositions(state, originPos, world)) {
+					for (BlockPos coord : findPositions(state, originPos, world, player.isSneaking() ? 0 : 128)) {
 						if (coord.equals(originPos)) {
 							continue;
 						}
@@ -315,10 +187,10 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 						block2.onBlockHarvested(world, coord, state, player);
 						if (player.isCreative()) {
 							if (block2.removedByPlayer(state, world, coord, player, false))
-								block2.onBlockDestroyedByPlayer(world, coord, state);
+								block2.breakBlock(world, coord, state);
 						} else {
 							if (block2.removedByPlayer(state, world, coord, player, true)) {
-								block2.onBlockDestroyedByPlayer(world, coord, state);
+								block2.breakBlock(world, coord, state);
 								block2.harvestBlock(world, player, coord, state, world.getTileEntity(coord), stack);
 								if (experience > 0)
 									block2.dropXpOnBlockBreak(world, coord, experience);
@@ -333,91 +205,8 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 		return false;
 	}
 
-	private static List<BlockPos> findPositions(IBlockState state, BlockPos origin, World world) {
-		List<BlockPos> found = new ArrayList<>();
-		Set<BlockPos> checked = new ObjectOpenHashSet<>();
-		found.add(origin);
-		Block startBlock = state.getBlock();
-		int maxCount = 120 - 1;
-		for (int i = 0; i < found.size(); i++) {
-			BlockPos blockPos = found.get(i);
-			checked.add(blockPos);
-			for (BlockPos pos : BlockPos.getAllInBox(blockPos.add(-1, -1, -1), blockPos.add(1, 1, 1))) {
-				if (!checked.contains(pos)) {
-					if (!world.getBlockState(pos).getBlock().equals(Blocks.AIR)) {
-						if (startBlock == world.getBlockState(pos).getBlock()) {
-							found.add(pos.toImmutable());
-						}
-						Block checkedBlock = world.getBlockState(pos).getBlock();
-						if (startBlock == Blocks.REDSTONE_ORE || startBlock == Blocks.LIT_REDSTONE_ORE) {
-							if (checkedBlock == Blocks.REDSTONE_ORE || checkedBlock == Blocks.LIT_REDSTONE_ORE) {
-								found.add(pos.toImmutable());
-							}
-						}
-						if (found.size() > maxCount) {
-							return found;
-						}
-					}
-				}
-			}
-		}
-		return found;
-	}
-
-	public ImmutableList<BlockPos> getAoEBlocks(ItemStack stack, World world, EntityPlayer player, BlockPos pos,
-			boolean harvest) {
-		RayTraceResult mop = rayTrace(world, player, false);
-		return getAoEBlocks(world, player, pos, mop.sideHit, harvest);
-	}
-
-	private RayTraceResult doRayTrace(IBlockState state, BlockPos pos, EntityPlayer player) {
-		Vec3d positionEyes = player.getPositionEyes(1.0F);
-		Vec3d playerLook = player.getLook(1.0F);
-		double blockReachDistance = player.getAttributeMap().getAttributeInstance(EntityPlayer.REACH_DISTANCE)
-				.getAttributeValue();
-		Vec3d maxReach = positionEyes.addVector(playerLook.x * blockReachDistance, playerLook.y * blockReachDistance,
-				playerLook.z * blockReachDistance);
-		RayTraceResult res = state.collisionRayTrace(player.world, pos, playerLook, maxReach);
-		return res != null ? res : new RayTraceResult(RayTraceResult.Type.MISS, Vec3d.ZERO, EnumFacing.UP, pos);
-	}
-
-	public ImmutableList<BlockPos> getAoEBlocks(World world, EntityPlayer player, BlockPos pos, EnumFacing side,
-			boolean harvest) {
-		if (harvest && !ForgeHooks.canHarvestBlock(world.getBlockState(pos).getBlock(), player, world, pos))
-			return ImmutableList.of();
-		int xRadius = 1, yRadius = 1, zRadius = 1;
-		BlockPos center = pos.offset(side.getOpposite(), 0);
-
-		switch (side.getAxis()) {
-		case X:
-			xRadius = 0;
-			break;
-		case Y:
-			yRadius = 0;
-			break;
-		case Z:
-			zRadius = 0;
-			break;
-		}
-
-		ImmutableList.Builder<BlockPos> builder = ImmutableList.builder();
-		for (int x = center.getX() - xRadius; x <= center.getX() + xRadius; x++) {
-			for (int y = center.getY() - yRadius; y <= center.getY() + yRadius; y++) {
-				for (int z = center.getZ() - zRadius; z <= center.getZ() + zRadius; z++) {
-					BlockPos harvestPos = new BlockPos(x, y, z);
-					if (harvestPos.equals(pos))
-						continue;
-					IBlockState state = world.getBlockState(harvestPos);
-					if (!harvest || ToolHelper.canAoEHarvest(world, state, harvestPos, pos, player))
-						builder.add(new BlockPos(x, y, z));
-				}
-			}
-		}
-		return builder.build();
-	}
-
 	public int getEnergyUsage(ItemStack stack) {
-		return readToolProps(stack).energyCost;
+		return getProps(stack).energyCost;
 	}
 
 	@Override
@@ -433,7 +222,7 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 	
 	@Override
 	public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target, EnumHand hand) {
-		drainEnergy(stack, readToolProps(stack).energyCost, target);
+		drainEnergy(stack, getEnergyUsage(stack), target);
 		return ToolHelper.shearEntity(stack, playerIn, target);
 	}
 
@@ -567,5 +356,10 @@ public class ItemOmniTool extends Item implements IHasModel, IEnergyContainerIte
 	@Override
 	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable NBTTagCompound nbt) {
 		return new EnergyContainerItemWrapper(stack, this);
+	}
+
+	@Override
+	public int getRadius(EntityPlayer player) {
+		return player.isSneaking() ? 0 : 1;
 	}
 }

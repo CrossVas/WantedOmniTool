@@ -3,15 +3,16 @@ key.modeswitch.desc=Mode Switch Key
 key.alt.desc=Alt Key
 key.wantedomnitool.category=Wanted Omni Tool
 
-tool.energy=Energy:
+tool.energy=Energy: %s/%s RF
 
-tool.efficiency=Efficiency:
-tool.efficiency.normal=Normal
-tool.efficiency.low=Low Power
-tool.efficiency.fine=Fine
-
-tool.mode=Mode:
-tool.mode.normal=Normal
-tool.mode.bigHoles=Big Holes
-tool.mode.vein=Vein
-tool.mode.veinExtended=Vein Extended
+message.text.mode=Tool Mode %s
+message.text.mode.eff=Efficiency Mode %s
+message.text.mode.mining=Mining Mode %s
+message.text.mode.normal=Normal
+message.text.mode.big_holes=Big Holes
+message.text.mode.low_power=Low Power
+message.text.mode.fine=Fine
+message.text.mode.vein=Vein
+message.text.mode.vein_extended=Vein Extended
+message.text.mode.silk=Silk Touch
+message.text.mode.fortune=Fortune III

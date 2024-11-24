@@ -90,7 +90,7 @@ public class ToolHelper {
         if (player.capabilities.isCreativeMode) {
             block.onBlockHarvested(world, pos, state, player);
             if (block.removedByPlayer(state, world, pos, player, false))
-                block.onBlockDestroyedByPlayer(world, pos, state);
+                block.breakBlock(world, pos, state);
 
             if (!world.isRemote)
                 ((EntityPlayerMP) player).connection.sendPacket(new SPacketBlockChange(world, pos));
@@ -110,7 +110,7 @@ public class ToolHelper {
             block.onBlockHarvested(world, pos, state, player);
 
             if (block.removedByPlayer(state, world, pos, player, true)) {
-                block.onBlockDestroyedByPlayer(world, pos, state);
+                block.breakBlock(world, pos, state);
                 block.harvestBlock(world, player, pos, state, world.getTileEntity(pos), stack);
                 block.dropXpOnBlockBreak(world, pos, xp);
             }
@@ -122,7 +122,7 @@ public class ToolHelper {
 
             world.playBroadcastSound(2001, pos, Block.getStateId(state));
             if (block.removedByPlayer(state, world, pos, player, true))
-                block.onBlockDestroyedByPlayer(world, pos, state);
+                block.breakBlock(world, pos, state);
             stack.onBlockDestroyed(world, state, pos, player);
 
             Minecraft mc = Minecraft.getMinecraft();

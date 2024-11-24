@@ -1,85 +1,64 @@
 buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
-    }
+	repositories {
+		mavenCentral()
+		maven { url = "https://maven.minecraftforge.net/" }
+	}
+	
+	dependencies {
+		classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "5.1.+"
+	}
 }
-        
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
 
-version = project.modver
-group = 'com.crossvas.wantedomniassembler' 
-archivesBaseName = project.modid
+apply plugin: "java"
+apply plugin: "net.minecraftforge.gradle"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
-
-minecraft {
-
-    mappings channel: 'snapshot', version: '20171003-1.12'
-    
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-
-        server {
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-        }
-    }
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+compileJava {
+	sourceCompatibility = "8"
+	targetCompatibility = "8"
 }
 
 repositories {
-    maven {
-        url "https://cursemaven.com"
-//        content {
-//            includeGroup "curse.maven"
-//        }
-    }
+	maven {
+		url = "https://maven.minecraftforge.net/"
+	}
+
+	maven {
+		url "https://cursemaven.com"
+	}
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
+	minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2860"
+
+	implementation fg.deobf("curse.maven:redstone-flux-270789:2920436")
+	implementation fg.deobf("curse.maven:ic2-classic-242942:5800761")
+}
+
+minecraft {
+	mappings channel: "stable", version: "39-1.12"
 	
-	//compileOnly fg.deobf("curse.maven:jei-238222:3043174")
-    compileOnly fg.deobf("curse.maven:redstone-flux-270789:2920436")
-
-    //runtimeOnly fg.deobf("curse.maven:jei-238222:3043174")
-    runtimeOnly fg.deobf("curse.maven:redstone-flux-270789:2920436")
+	runs {
+		"client" {
+			workingDirectory file("./run")
+			mods { "${project.name}" { source sourceSets.main } }
+		}
+		
+		"server" {
+			workingDirectory file("./run/server")
+			mods { "${project.name}" { source sourceSets.main } }
+		}
+	}
 }
 
-jar {
-    manifest {
-        attributes([
-            "Specification-Title": "examplemod",
-            "Specification-Vendor": "examplemodsareus",
-            "Specification-Version": "1", // We are version 1 of ourselves
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"examplemodsareus",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
+processResources {
+	inputs.property "version", project.version
+	
+	filesMatching("mcmod.info") {
+		expand "version": project.version
+	}
 }
 
-jar.finalizedBy('reobfJar') 
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
-        }
-    }
-}
+//When Forge 1.12 loads mods from a directory that's been put on the classpath, it expects to find resources in the same directory.
+//Default Gradle behavior puts resources in ./build/resources/main instead of ./build/classes/main/java. Let's change that.
+sourceSets.all { it.output.resourcesDir = it.output.classesDirs.getFiles().iterator().next() }
